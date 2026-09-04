@@ -75,18 +75,24 @@
 | `convertible_debenture` | หุ้นกู้แปลงสภาพ (CB) — เกี่ยวกับป้าย XE |
 | `preferred_stock` | หุ้นบุริมสิทธิ |
 
-## ParticipantStatus — สถานะผู้สมัครกิจกรรม
+## ParticipantStatus — สถานะการลงทะเบียนเข้าร่วมกิจกรรม IR
+
+> 📌 **ผ่าน semantic audit — ชื่อตรงตัว ไม่ต้องแก้** • โครงสร้าง: กิจกรรม = `ParticipantEvent` (มี `capacity` จำกัดที่นั่ง + `conditions`) • การสมัคร = junction `InvestorDetailParticipantEvent` (นักลงทุน↔กิจกรรม — มี `reserveOrder` + `registered_at`, unique ต่อคู่) • lifecycle: **สมัคร → คัดเลือก → วันงาน**
+>
+> นัยยะของค่า (string แช่แข็งตาม D2): `eligible` = **ถูกอนุมัติให้เข้าร่วม** (คัดจาก capacity/เงื่อนไข — ไม่ใช่ "มีคุณสมบัติ" ตามตัวอักษร) • `absent` = No Show (โค้ดเก่าแสดง label 'No Show' — ตรงศัพท์ event industry) • สถานะอุตสาหกรรมที่เทียบได้: waiting≈pending, eligible≈approved/confirmed, eligible_reserve≈waitlist, not_eligible≈rejected, absent≈no-show
 
 | ค่า | คืออะไร |
 |-----|---------|
 | `waiting` | สมัครแล้ว รอคัด/รอสุ่ม |
-| `eligible` | ได้สิทธิ์เข้าร่วม |
+| `eligible` | อนุมัติให้เข้าร่วม (ผ่านการคัดเลือก) |
 | `eligible_reserve` | สำรอง (มีลำดับ `reserveOrder`) |
-| `not_eligible` | ไม่ได้สิทธิ์ |
+| `not_eligible` | ไม่ผ่านการคัดเลือก |
 | `canceled` | ยกเลิก |
-| `absent` | ลงทะเบียนแล้วแต่ไม่มา (No Show) |
+| `absent` | อนุมัติแล้วแต่ไม่มา (No Show) |
 
 ## Role — บทบาทผู้ใช้ (2 ฝั่ง)
+
+> 📌 **ผ่าน semantic audit — ใช้ `ERole`** • "Role" = ศัพท์มาตรฐาน RBAC • **DB เก็บเป็น `role VarChar` ไม่ใช่ enum** → `ERole` ใน contracts = source of truth ฝั่ง TS เพียงทางเดียว (ต้อง validate ที่ขอบเขต API ทุกครั้งอ่าน/เขียน) • โครง 2 ระดับ: `IRM_*` = แพลตฟอร์ม / ไม่มี prefix = ระดับลูกค้า (convention เดิม — ค่าฝังใน token/DB แล้ว คงเดิม) • ตาม D5: role ≠ audience ≠ scope (คนละแกน — กันปนตอนออกแบบ token service) • อนาคตถ้าโตอาจแยก role/permission — วันนี้ 5 ค่าพอ
 
 | ค่า | ฝั่ง | คืออะไร |
 |-----|------|---------|
@@ -107,7 +113,7 @@
 | `NOT_FOUND` | 404 | ไม่พบของที่ขอ (รวม Prisma P2025) |
 | `CONFLICT` | 409 | ชนกับของที่มีอยู่ — unique ซ้ำ (P2002) / เอกสารซ้ำ |
 | `RATE_LIMITED` | 429 | ยิงถี่เกิน |
-| `INTERNAL` | 500 | อื่น ๆ (ซ่อนรายละเอียด — ไล่จาก log ด้วย correlationId) |
+| `INTERNAL_ERROR` | 500 | อื่น ๆ (ซ่อนรายละเอียด — ไล่จาก log ด้วย correlationId) |
 
 ---
 

@@ -1,6 +1,9 @@
 {
   "name": "irm-libs",
   "private": true,
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "pnpm -r build",
     "lint": "eslint . --no-warn-ignored",
