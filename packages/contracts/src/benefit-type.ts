@@ -1,4 +1,4 @@
-export enum ESymbol {
+export enum EBenefitType {
   XB = "xb",
   XD = "xd",
   XM = "xm",
